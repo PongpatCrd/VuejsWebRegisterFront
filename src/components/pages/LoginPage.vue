@@ -2,14 +2,14 @@
   <div class="container">
     <h1 class="title-space">Login</h1>
       <div class="w-75 mx-auto">
-        <b-form @submit="loginUser" @>
+        <b-form @submit="loginUser">
           
           <label for="username"><b>Username</b></label>
-          <b-input v-model="username" id="username" @change="usernameValidator" required></b-input>
+          <b-input v-model="username" id="username" required></b-input>
           <br>
 
           <label for="password"><b>Password</b></label>
-          <b-input id="password" v-model="password" type="password" @input="passwordValidator" required></b-input>
+          <b-input id="password" v-model="password" type="password" required></b-input>
           <br>
 
           <div class="text-center group-submit-btn-space">
@@ -32,8 +32,34 @@ import Vue from 'vue'
 
 export default Vue.extend({
   name: 'LoginPage',
+  data () {
+    return {
+      username: '',
+      password: ''
+    }
+  },
   methods: {
+    async loginUser (evt) {
+      evt.preventDefault()
+      this.$loading(true)
 
+      const res = await this.callApi(
+        'post', 
+        'http://localhost:8000/api/login',
+        {
+          username: this.username,
+          password: this.password
+        }
+      )
+
+      if (res.data.user) {
+        this.info('success login')
+      } else {
+        this.error()
+      }
+
+      this.$loading(false)
+    }
   },
 })
 </script>

@@ -3,7 +3,7 @@
     <div v-if="!userProfile">
       <h1 class="title-space">Register</h1>
       <div class="w-75 mx-auto">
-        <b-form @submit="createUser" @>
+        <b-form @submit="createUser">
           <label for="username"><b>Username</b></label>
           <b-input v-model="username" id="username" @change="usernameValidator" required></b-input>
           <b-form-invalid-feedback :state="validatorUsernameMsg == 'success'">
@@ -86,6 +86,13 @@
 import Vue from 'vue'
 
 import * as EmailValidator from 'email-validator';
+import Pusher from 'pusher-js'
+
+const socket = new Pusher('APP_KEY', {
+  cluster: 'eu',
+  encrypted: true
+})
+const channel = socket.subscribe('register/create_user')
 
 export default Vue.extend({
   name: 'RegisterPage',
@@ -221,6 +228,11 @@ export default Vue.extend({
           if (res.status == 201) {
             this.success('User has been created!')
             this.userProfile = res.data.userProfile
+
+            channel.bind('new-register', function() {
+              alert('An event was triggered from register');
+            });
+
           } else {
             this.error()
           }
